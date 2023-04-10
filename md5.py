@@ -20,6 +20,7 @@ class MD5Buffer(Enum):
     B = 0xEFCDAB89
     C = 0x98BADCFE
     D = 0x10325476
+    E = 0x10325664
 
 
 
@@ -30,6 +31,7 @@ class MD5(object):
         MD5Buffer.B: None,
         MD5Buffer.C: None,
         MD5Buffer.D: None,
+        MD5Buffer.E: None,
     }
 
     @classmethod
@@ -85,6 +87,9 @@ class MD5(object):
         G = lambda x, y, z: (x & z) | (y & ~z)
         H = lambda x, y, z: x ^ y ^ z
         I = lambda x, y, z: y ^ (x | ~z)
+        
+        K = lambda x, y, z: ~x ^ (y | z)
+        
 
         # Define the left rotation function, which rotates `x` left `n` bits.
         rotate_left = lambda x, n: (x << n) | (x >> (32 - n))
@@ -95,6 +100,12 @@ class MD5(object):
         # Compute the T table from the sine function. Note that the
         # RFC starts at index 1, but we start at index 0.
         T = [floor(pow(2, 32) * abs(sin(i + 1))) for i in range(64)]
+        # Nếu range(128) chạy sẽ chậm hơn nhưng không phải đổi lại hàm K
+        K = [floor(pow(2, 64) * abs(cosin(i + 1))) for i in range(128)]
+        E = floor(pow(2, 64) * abs(sin(i))
+        E = E/pow(2,32)
+        # Đảo lại hàm E một lần nữa để chuyển thành 4 bộ
+        E = lambda x, y, z: ~x ^ (z | y)
 
         # The total number of 32-bit words to process, N, is always a
         # multiple of 16.
@@ -114,6 +125,7 @@ class MD5(object):
             B = cls._buffers[MD5Buffer.B]
             C = cls._buffers[MD5Buffer.C]
             D = cls._buffers[MD5Buffer.D]
+            E = cls._buffers[MD5Buffer.E]
 
             # Execute the four rounds with 16 operations each.
             for i in range(4 * 16):
@@ -133,6 +145,8 @@ class MD5(object):
                     k = (7 * i) % 16
                     s = [6, 10, 15, 21]
                     temp = I(B, C, D)
+                # xác định được temp thì chuyển nó vào hàm E số lần bằng 2^64 --> dịch đi 64 bit
+                E = floor(pow(2, 64) * abs(sin(temp)) 
 
                 # The MD5 algorithm uses modular addition. Note that we need a
                 # temporary variable here. If we would put the result in `A`, then
@@ -148,7 +162,8 @@ class MD5(object):
                 A = D
                 D = C
                 C = B
-                B = tempdata
+                B = E
+                E = tempdata
 
 
             # Update the buffers with the results from this chunk.
@@ -156,6 +171,7 @@ class MD5(object):
             cls._buffers[MD5Buffer.B] = modular_add(cls._buffers[MD5Buffer.B], B)
             cls._buffers[MD5Buffer.C] = modular_add(cls._buffers[MD5Buffer.C], C)
             cls._buffers[MD5Buffer.D] = modular_add(cls._buffers[MD5Buffer.D], D)
+            cls._buffers[MD5Buffer.D] = modular_add(cls._buffers[MD5Buffer.E], E)
 
     @classmethod
     def _step_5(cls):
@@ -164,6 +180,7 @@ class MD5(object):
         B = struct.unpack("<I", struct.pack(">I", cls._buffers[MD5Buffer.B]))[0]
         C = struct.unpack("<I", struct.pack(">I", cls._buffers[MD5Buffer.C]))[0]
         D = struct.unpack("<I", struct.pack(">I", cls._buffers[MD5Buffer.D]))[0]
+        E = struct.unpack("<I", struct.pack(">I", cls._buffers[MD5Buffer.E]))[0]
 
         # Output the buffers in lower-case hexadecimal format.
-        return f"{format(A, '08x')}{format(B, '08x')}{format(C, '08x')}{format(D, '08x')}"
+        return f"{format(A, '08x')}{format(B, '08x')}{format(C, '08x')}{format(D, '08x')} {format(E, '08x')}"
