@@ -1,5 +1,5 @@
 """
-The implementation of the MD5 algorithm is based on the original RFC at
+SI - VNPT
 https://www.ietf.org/rfc/rfc1321.txt and contains optimizations from
 https://en.wikipedia.org/wiki/MD5.
 """
@@ -15,10 +15,12 @@ from bitarray import bitarray
 
 
 class MD5Buffer(Enum):
+# Define block data – A,B,C,D with 32-bit word
     A = 0x67452301
     B = 0xEFCDAB89
     C = 0x98BADCFE
     D = 0x10325476
+
 
 
 class MD5(object):
@@ -137,17 +139,17 @@ class MD5(object):
                 # the expression `A = D` below would overwrite it. We also cannot
                 # move `A = D` lower because the original `D` would already have
                 # been overwritten by the `D = C` expression.
-                temp = modular_add(temp, X[k])
-                temp = modular_add(temp, T[i])
-                temp = modular_add(temp, A)
-                temp = rotate_left(temp, s[i % 4])
-                temp = modular_add(temp, B)
-
-                # Swap the registers for the next operation.
+                tempdata = ChangeData_add(tempdata, X[k])
+                tempdata = ChangeData_add(tempdata, T[i])
+                tempdata = ChangeData_add(tempdata, A)
+                tempdata = rotate_left(tempdata, s[i % 4])
+                tempdata = ChangeData_add(tempdata, B)
+                # Swap A,B,C,D block.
                 A = D
                 D = C
                 C = B
-                B = temp
+                B = tempdata
+
 
             # Update the buffers with the results from this chunk.
             cls._buffers[MD5Buffer.A] = modular_add(cls._buffers[MD5Buffer.A], A)
