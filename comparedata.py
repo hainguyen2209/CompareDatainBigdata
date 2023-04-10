@@ -1,7 +1,7 @@
 """
 SI - VNPT
 https://www.ietf.org/rfc/rfc1321.txt and contains optimizations from
-https://en.wikipedia.org/wiki/MD5.
+
 """
 
 import struct
