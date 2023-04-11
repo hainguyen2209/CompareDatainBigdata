@@ -1,7 +1,7 @@
 """
 SI - VNPT
 https://www.ietf.org/rfc/rfc1321.txt and contains optimizations from
-https://en.wikipedia.org/wiki/MD5.
+https://en.wikipedia.org/wiki/CompareData.
 """
 
 import struct
@@ -14,7 +14,7 @@ from math import (
 from bitarray import bitarray
 
 
-class MD5Buffer(Enum):
+class CompareDataBuffer(Enum):
 # Define block data – A,B,C,D with 32-bit word
     A = 0x67452301
     B = 0xEFCDAB89
@@ -24,14 +24,14 @@ class MD5Buffer(Enum):
 
 
 
-class MD5(object):
+class CompareData(object):
     _string = None
     _buffers = {
-        MD5Buffer.A: None,
-        MD5Buffer.B: None,
-        MD5Buffer.C: None,
-        MD5Buffer.D: None,
-        MD5Buffer.E: None,
+        CompareDataBuffer.A: None,
+        CompareDataBuffer.B: None,
+        CompareDataBuffer.C: None,
+        CompareDataBuffer.D: None,
+        CompareDataBuffer.E: None,
     }
 
     @classmethod
@@ -58,7 +58,7 @@ class MD5(object):
         while len(bit_array) % 512 != 448:
             bit_array.append(0)
 
-        # For the remainder of the MD5 algorithm, all values are in
+        # For the remainder of the CompareData algorithm, all values are in
         # little endian, so transform the bit array to little endian.
         return bitarray(bit_array, endian="little")
 
@@ -121,11 +121,11 @@ class MD5(object):
             X = [int.from_bytes(word.tobytes(), byteorder="little") for word in X]
 
             # Make shorthands for the buffers A, B, C and D.
-            A = cls._buffers[MD5Buffer.A]
-            B = cls._buffers[MD5Buffer.B]
-            C = cls._buffers[MD5Buffer.C]
-            D = cls._buffers[MD5Buffer.D]
-            E = cls._buffers[MD5Buffer.E]
+            A = cls._buffers[CompareDataBuffer.A]
+            B = cls._buffers[CompareDataBuffer.B]
+            C = cls._buffers[CompareDataBuffer.C]
+            D = cls._buffers[CompareDataBuffer.D]
+            E = cls._buffers[CompareDataBuffer.E]
 
             # Execute the four rounds with 16 operations each.
             for i in range(4 * 16):
@@ -148,7 +148,7 @@ class MD5(object):
                 # xác định được temp thì chuyển nó vào hàm E số lần bằng 2^64 --> dịch đi 64 bit
                 E = floor(pow(2, 64) * abs(sin(temp)) 
 
-                # The MD5 algorithm uses modular addition. Note that we need a
+                # The CompareData algorithm uses modular addition. Note that we need a
                 # temporary variable here. If we would put the result in `A`, then
                 # the expression `A = D` below would overwrite it. We also cannot
                 # move `A = D` lower because the original `D` would already have
@@ -167,20 +167,20 @@ class MD5(object):
 
 
             # Update the buffers with the results from this chunk.
-            cls._buffers[MD5Buffer.A] = modular_add(cls._buffers[MD5Buffer.A], A)
-            cls._buffers[MD5Buffer.B] = modular_add(cls._buffers[MD5Buffer.B], B)
-            cls._buffers[MD5Buffer.C] = modular_add(cls._buffers[MD5Buffer.C], C)
-            cls._buffers[MD5Buffer.D] = modular_add(cls._buffers[MD5Buffer.D], D)
-            cls._buffers[MD5Buffer.D] = modular_add(cls._buffers[MD5Buffer.E], E)
+            cls._buffers[CompareDataBuffer.A] = modular_add(cls._buffers[CompareDataBuffer.A], A)
+            cls._buffers[CompareDataBuffer.B] = modular_add(cls._buffers[CompareDataBuffer.B], B)
+            cls._buffers[CompareDataBuffer.C] = modular_add(cls._buffers[CompareDataBuffer.C], C)
+            cls._buffers[CompareDataBuffer.D] = modular_add(cls._buffers[CompareDataBuffer.D], D)
+            cls._buffers[CompareDataBuffer.D] = modular_add(cls._buffers[CompareDataBuffer.E], E)
 
     @classmethod
     def _step_5(cls):
         # Convert the buffers to little-endian.
-        A = struct.unpack("<I", struct.pack(">I", cls._buffers[MD5Buffer.A]))[0]
-        B = struct.unpack("<I", struct.pack(">I", cls._buffers[MD5Buffer.B]))[0]
-        C = struct.unpack("<I", struct.pack(">I", cls._buffers[MD5Buffer.C]))[0]
-        D = struct.unpack("<I", struct.pack(">I", cls._buffers[MD5Buffer.D]))[0]
-        E = struct.unpack("<I", struct.pack(">I", cls._buffers[MD5Buffer.E]))[0]
+        A = struct.unpack("<I", struct.pack(">I", cls._buffers[CompareDataBuffer.A]))[0]
+        B = struct.unpack("<I", struct.pack(">I", cls._buffers[CompareDataBuffer.B]))[0]
+        C = struct.unpack("<I", struct.pack(">I", cls._buffers[CompareDataBuffer.C]))[0]
+        D = struct.unpack("<I", struct.pack(">I", cls._buffers[CompareDataBuffer.D]))[0]
+        E = struct.unpack("<I", struct.pack(">I", cls._buffers[CompareDataBuffer.E]))[0]
 
         # Output the buffers in lower-case hexadecimal format.
         return f"{format(A, '08x')}{format(B, '08x')}{format(C, '08x')}{format(D, '08x')} {format(E, '08x')}"
