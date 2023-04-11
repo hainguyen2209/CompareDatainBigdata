@@ -1,10 +1,10 @@
 import unittest
 
-from md5 import MD5
+from md5 import CompareData
 
 
-class TestMD5(unittest.TestCase):
-    def test_md5(self):
+class TestCompareData(unittest.TestCase):
+    def test_CompareData(self):
         expectations = {
             "": "d41d8cd98f00b204e9800998ecf8427e",
             "a": "0cc175b9c0f1b6a831c399e269772661",
@@ -15,6 +15,6 @@ class TestMD5(unittest.TestCase):
             "12345678901234567890123456789012345678901234567890123456789012345678901234567890": "57edf4a22be3c955ac49da2e2107b67a",
         }
 
-        for string, md5_hash in expectations.items():
-            with self.subTest(string=string, md5_hash=md5_hash):
-                self.assertEqual(MD5.hash(string), md5_hash)
+        for string, CompareData_hash in expectations.items():
+            with self.subTest(string=string, CompareData_hash=CompareData_hash):
+                self.assertEqual(MD5.hash(string), CompareData_hash)
